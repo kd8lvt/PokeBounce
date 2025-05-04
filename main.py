@@ -32,7 +32,7 @@ url = "http://127.0.0.1:5000"
 
 gameStart = False
 
-startCountdown = config.GAMEPLAY.startTimer
+startCountdown = config.TIMERS["startCountdown"]
 endScreenCountdown = 0
 
 charsChosen = False
@@ -68,9 +68,9 @@ while looping:
   
 
   # Render elements of the game
-  WINDOW.fill(config.WINDOW.bg_color)
+  WINDOW.fill(config.WINDOW["bg_color"])
 
-  bgrect = pygame.Rect(0, 0, config.WINDOW.size[0], config.WINDOW.size[1])
+  bgrect = pygame.Rect(0, 0, config.WINDOW["size"][0], config.WINDOW["size"][1])
 
   WINDOW.blit(sprites.get_arena(), bgrect)
 
@@ -92,9 +92,9 @@ while looping:
       for char in Sets.sets.keys():
         charList.append(Sets.get(char))
 
-      if config.DEBUG.overrideBattlers:
+      if config.DEBUG["overrideBattlers"]:
         charList = []
-        for set in config.DEBUG.battlerOverride:
+        for set in config.DEBUG["battlerOverride"]:
           charList.append(Sets.get(set))
       else: 
         charList = chooseChars(charList, random.randint(3,10))
@@ -194,7 +194,7 @@ while looping:
         charUpBox = pygame.Rect((char.x + char.upDetectBox.xOffset, char.y + char.upDetectBox.yOffset, char.upDetectBox.width, char.upDetectBox.height))
         charDownBox = pygame.Rect((char.x + char.downDetectBox.xOffset, char.y + char.downDetectBox.yOffset, char.downDetectBox.width, char.downDetectBox.height))
 
-        if config.DEBUG.showCollisionBoxes:
+        if config.DEBUG["showCollisionBoxes"]:
           pygame.draw.rect(WINDOW, (255,0,0), charLeftBox)
           pygame.draw.rect(WINDOW, (255,0,0), charRightBox)
           pygame.draw.rect(WINDOW, (255,0,0), charUpBox)
@@ -253,7 +253,7 @@ while looping:
 
 
     for moveRect in moveRects:
-      if config.DEBUG.showHitboxes:
+      if config.DEBUG["showHitboxes"]:
         pygame.draw.rect(WINDOW, moveRect[1].colour, moveRect[0])
       if moveRect[1].graphic == "image":
         moveImage = sprites.moves.get(moveRect[1].image)
@@ -293,9 +293,9 @@ while looping:
       char.damageIndicators = newDamageIndictators
 
     if gameOver:
-      gameOverCountdown -= 1
+      config.TIMERS["gameOverCountdown"] -= 1
 
-    if gameOverCountdown == 0:
+    if config.TIMERS["gameOverCountdown"] == 0:
       if len(alivelist) == 0:
         result = "draw"
         api.draw()

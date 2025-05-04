@@ -25,6 +25,6 @@ override_battlers = false
 # The list of battlers to use when override_battlers is set to true. Does nothing if override_battlers is set to false.
 battler_override = ["quagsire","nidoking","smeargle"]
 # Displays each battler's hitbox, as well as those of their moves
-show_hitboxes = true
+show_hitboxes = false
 # Displays each battler's collision boxes, as well as the walls around the arena.
 show_collision_boxes = false

@@ -1,24 +1,23 @@
 import requests
-from src.config import CONFIG_FILE
+import src.config as config
 
-def post(args: list[any]):
-    if CONFIG_FILE.API.enabled == True:
-        newargs = args.copy()
-        newargs[0] = CONFIG_FILE.API.url + newargs[0]
-        return requests.post(*args)
+def post(endpoint,value):
+    if config.API["enabled"] == True:
+        endpoint = config.API["url"] + endpoint
+        return requests.post(endpoint, json=value)
     return None
 
 def set_winner(winner):
-    post("/setwinner", json = {"winner" : winner})
+    post("/setwinner", {"winner" : winner})
 
 def draw():
     set_winner("Nobody")
 
 def set_fighters(fighterList):
-    post("/setfighters", json = {"fighters" : fighterList})
+    post("/setfighters", {"fighters" : fighterList})
 
 def set_gameid(gameId):
-    post("/setgameid", json = {"id" : gameId})
+    post("/setgameid", {"id" : gameId})
 
 def set_gambling(gambling):
-    post("/setgambling", json = {"openGambling" : gambling})
+    post("/setgambling", {"openGambling" : gambling})
