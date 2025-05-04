@@ -1,6 +1,6 @@
 import pygame
 from pygame.locals import *
-from src.constants import *
+import src.config as config
 
 class Sprites:
     base_dir = "img"
@@ -10,18 +10,15 @@ class Sprites:
     battlers = {}
     moves = {}
     arena = None
-    _WINDOW_WIDTH = None
-    _WINDOW_HEIGHT = None
-
 
     def __init__(self):
         print("Loading images from '"+self.base_dir+"/*'...")
         print("Arena...")
         self.get_arena()
         print("Battlers...")
-        self._load_battlers(battler_sprites)
+        self._load_battlers(config.SPRITES["battlers"])
         print("Moves...")
-        self._load_moves(move_sprites)
+        self._load_moves(config.SPRITES["moves"])
 
 
     def get_battler(self,battler_id):
@@ -40,7 +37,7 @@ class Sprites:
 
     def get_arena(self):
         if (self.arena == None):
-            self.arena = self._load_img(Sprites.base_dir+"/arena.png",WINDOW_WIDTH, WINDOW_HEIGHT)
+            self.arena = self._load_img(Sprites.base_dir+"/arena.png",config.WINDOW["size"][0], config.WINDOW["size"][1])
 
         return self.arena
 

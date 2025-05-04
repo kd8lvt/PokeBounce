@@ -1,0 +1,30 @@
+[window]
+# The width and height of the window, respectively
+size = [1450, 800]
+# The background color of the window. Default is an nearly-white gray.
+background_color = [240, 240, 240]
+# The framerate the game should run at. Affects balance.
+fps = 60
+
+
+[api]
+# Whether or not to make API calls. You probably want to keep this off.
+make_api_calls = false
+# The url for your api, if you've made / are using one. Only does anything when make_api_calls is set to true.
+base_url = "http://127.0.0.1:5000"
+
+[timers]
+# How long people have to gamble, in seconds. You probably want to keep this low when testing.
+gamble_timer = 5
+# How long to display the "game over" text for, in seconds, before moving on to the gambling phase.
+game_over_timer = 1
+
+[debug]
+# Whether or not to disable the random battler picker, and use the list below instead
+override_battlers = false
+# The list of battlers to use when override_battlers is set to true. Does nothing if override_battlers is set to false.
+battler_override = ["quagsire","nidoking","smeargle"]
+# Displays each battler's hitbox, as well as those of their moves
+show_hitboxes = true
+# Displays each battler's collision boxes, as well as the walls around the arena.
+show_collision_boxes = false

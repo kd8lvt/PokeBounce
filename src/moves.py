@@ -87,6 +87,7 @@ class BraveBird:
 	def use(poke):
 		if poke.usingMoveTimer == 90:
 			poke.moveText = MoveText(poke.x, poke.y, poke.usingMove)
+			poke.takeDamage(5)
 		ttl = 25
 		if poke.usingMoveTimer == 90:
 			poke.previousSpeed = poke.speed

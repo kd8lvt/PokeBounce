@@ -8,3 +8,6 @@ __pycache__/
 *.egg
 *.code-workspace
 *.pyc
+
+# Java scratch file, tl;dr it's a .txt
+*.scratch

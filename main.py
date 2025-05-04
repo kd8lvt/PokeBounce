@@ -1,18 +1,22 @@
 import pygame, sys, random
 from pygame.locals import *
-import requests
-from src.debug import *
-from src.constants import *
+import src.api as api
+import src.config as config
 
 # Game Setup
 pygame.init()
 FPS = 60
 fpsClock = pygame.time.Clock()
  
-WINDOW = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
+WINDOW = pygame.display.set_mode(config.WINDOW["size"])
+
+#Got sick of writing these two repeatedly
+WINDOW_WIDTH = config.WINDOW["size"][0]
+WINDOW_HEIGHT = config.WINDOW["size"][1]
+
 pygame.Surface.convert_alpha(WINDOW)
 
-SURFACE = pygame.Surface((WINDOW_WIDTH,WINDOW_HEIGHT), pygame.SRCALPHA)
+SURFACE = pygame.Surface(config.WINDOW["size"], pygame.SRCALPHA)
 pygame.display.set_caption('Auto Arena')
  
 fontStart = pygame.freetype.SysFont('vcr osd mono', 50)
@@ -28,7 +32,8 @@ url = "http://127.0.0.1:5000"
 
 gameStart = False
 
-startCountdown = startTimer
+startCountdown = config.GAMEPLAY.startTimer
+endScreenCountdown = 0
 
 charsChosen = False
 
@@ -37,7 +42,6 @@ gameOver = False
 winner = ""
 
 result = ""
-endScreenCountdown = 0
 
 gambling = False
 
@@ -64,9 +68,9 @@ while looping:
   
 
   # Render elements of the game
-  WINDOW.fill(BACKGROUND)
+  WINDOW.fill(config.WINDOW.bg_color)
 
-  bgrect = pygame.Rect(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT)
+  bgrect = pygame.Rect(0, 0, config.WINDOW.size[0], config.WINDOW.size[1])
 
   WINDOW.blit(sprites.get_arena(), bgrect)
 
@@ -88,9 +92,9 @@ while looping:
       for char in Sets.sets.keys():
         charList.append(Sets.get(char))
 
-      if overrideBattlers:
+      if config.DEBUG.overrideBattlers:
         charList = []
-        for set in battlerOverride:
+        for set in config.DEBUG.battlerOverride:
           charList.append(Sets.get(set))
       else: 
         charList = chooseChars(charList, random.randint(3,10))
@@ -103,11 +107,11 @@ while looping:
       for char in charList:
         fighterList.append(char.name)
 
-      if API: requests.post(url + "/setfighters", json = {"fighters" : fighterList})
-      if API: requests.post(url + "/setgameid", json = {"id" : gameId})
+      api.set_fighters(fighterList)
+      api.set_gameid(gameId)
 
       gambling = True
-      if API: requests.post(url + "/setgambling", json = {"openGambling" : gambling})
+      api.set_gambling(gambling)
 
     for char in charList:
       charrect = pygame.Rect((char.x, char.y, char.size, char.size))
@@ -130,12 +134,12 @@ while looping:
   elif endScreenCountdown == 0 and result != "":
     gameStart = False
 
-    startCountdown = startTimer
+    startCountdown = config.TIMERS.startTimer
 
     charsChosen = False
 
     gameOver = False
-    gameOverCountdown = 30
+    gameOverCountdown = config.TIMERS.gameOverCountdown
 
     wallModifier = 0
 
@@ -149,7 +153,7 @@ while looping:
     if gambling:
 
         gambling = False
-        if API: requests.post(url + "/setgambling", json = {"openGambling" : gambling})
+        api.set_gambling(gambling)
 
     if wallModifier < wallMaxSize:
         wallModifier += wallGrowth
@@ -190,7 +194,7 @@ while looping:
         charUpBox = pygame.Rect((char.x + char.upDetectBox.xOffset, char.y + char.upDetectBox.yOffset, char.upDetectBox.width, char.upDetectBox.height))
         charDownBox = pygame.Rect((char.x + char.downDetectBox.xOffset, char.y + char.downDetectBox.yOffset, char.downDetectBox.width, char.downDetectBox.height))
 
-        if showCollisionBoxes:
+        if config.DEBUG.showCollisionBoxes:
           pygame.draw.rect(WINDOW, (255,0,0), charLeftBox)
           pygame.draw.rect(WINDOW, (255,0,0), charRightBox)
           pygame.draw.rect(WINDOW, (255,0,0), charUpBox)
@@ -249,7 +253,7 @@ while looping:
 
 
     for moveRect in moveRects:
-      if showHitboxes:
+      if config.DEBUG.showHitboxes:
         pygame.draw.rect(WINDOW, moveRect[1].colour, moveRect[0])
       if moveRect[1].graphic == "image":
         moveImage = sprites.moves.get(moveRect[1].image)
@@ -294,11 +298,11 @@ while looping:
     if gameOverCountdown == 0:
       if len(alivelist) == 0:
         result = "draw"
-        if API: requests.post(url + "/setwinner", json = {"winner" : "Nobody"})
+        api.draw()
       if len(alivelist) == 1:
         result = "win"
         winner = alivelist[0]
-        if API: requests.post(url + "/setwinner", json = {"winner" : winner})
+        api.set_winner(winner)
       endScreenCountdown = 240
       
 
