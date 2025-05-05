@@ -2,12 +2,15 @@ import random
 import pygame.transform
 from math import sqrt
 from pygame import Rect, draw
-from src.moves import MOVES, Move
+from src.plugin_api.registry.registries import registries
+from src.plugin_api.registry.identifier import Identifier
+from plugins.main.moves import MOVES, Move
 from src import physics
 from src.constants import WINDOW_HEIGHT, WINDOW_WIDTH
 from src.globals import g
 from src.debug import showCollisionBoxes
 
+move_registry = registries.get(Identifier("vanilla","moves"))
 charSpeed = 2
 
 class DamageIndicator:
@@ -187,13 +190,11 @@ class Poke(physics.PhysicsObject):
             self.moveTimer = self.setMoveTimer()
             self.velStart()
             self.usingMove = random.choice(self.moveset)
-
-
         else:
             self.moveTimer -= 1
 
         if self.usingMove != "":
-            move = MOVES.get(self.usingMove)
+            move = move_registry.get(Identifier("vanilla",self.usingMove))
             if move is not None:
                 if self.usingMoveTimer <= 0:
                     self.usingMoveTimer = move.usingTime

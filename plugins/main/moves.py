@@ -1,104 +1,10 @@
 import math
 import random
-import pygame.draw
-from src import physics
-from src.debug import showHitboxes
-from src.globals import g
-from src.sprite_loader import INSTANCE as sprites
 
-
-class MoveText:
-    ttl = 60
-    alpha = 0
-
-    def __init__(self, x, y, text):
-        self.x = x
-        self.y = y
-        self.text = text
-
-    def tick(self):
-        self.ttl -= 1
-        self.y -= 0.50
-
-        if self.ttl >= 50 and self.alpha < 230:
-            self.alpha += 20
-        elif self.ttl <= 20 and self.alpha > 15:
-            self.alpha -= 10
-
-
-class Move(physics.PhysicsObject):
-    type = "bird"
-    colour = (255, 0, 255)
-    damage = 0
-    graphic = "circle"
-    usingTime = 0
-    acceleration = 1
-    linearAcceleration = 0
-    growth = 1
-    linearGrowth = 0
-
-    image: str
-
-    def __init__(self, poke):
-        self.x = poke.x + poke.size / 2
-        self.y = poke.y + poke.size / 2
-        super().__init__(self.x, self.y, self.size, self.size, True)
-        self.ttl = 0
-        self.rotate = 0
-        self.rotSpeed = 0
-        self.poke = poke
-
-    def update(self):
-        self.move()
-
-    def move(self):
-        self.x += self.xVel
-        self.y += self.yVel
-
-        self.xVel += self.linearAcceleration
-        self.yVel += self.linearAcceleration
-
-        self.xVel *= self.acceleration
-        self.yVel *= self.acceleration
-
-        self.size += self.linearGrowth
-        self.size *= self.growth
-
-        if self.size < 1:
-            physics.allObjects.remove(self)
-            return
-
-        self.resize(self.size, self.size)
-        self.rotate += self.rotSpeed
-
-        self.ttl -= 1
-        if self.ttl == 0:
-            physics.allObjects.remove(self)
-
-    def draw(self):
-        if showHitboxes:
-            pygame.draw.rect(g.window, self.colour, self.getCollider())
-        if self.graphic == "image":
-            moveImage = sprites.moves.get(self.image)
-            if moveImage is None:
-                raise Exception(f"Move image is <None>! {self.image}")
-            moveImage = pygame.transform.scale(moveImage, (self.size, self.size))
-            if moveImage is None:
-                print("Move image is <None>! "+self.image)
-
-            rotatedImage = pygame.transform.rotate(moveImage, self.rotate)
-
-            new_rect = rotatedImage.get_rect(center=moveImage.get_rect(center=(self.x + self.size/2, self.y + self.size/2)).center)
-            g.window.blit(rotatedImage, new_rect)
-        elif self.graphic == "rect":
-            pygame.draw.rect(g.window, self.colour, self.getCollider())
-        elif self.graphic == "circle":
-            pygame.draw.circle(g.window, self.colour, self.getCollider().center, self.size/2)
-
-    @staticmethod
-    def use(poke):
-        pass
-
+from src.plugin_api.registry.identifier import Identifier
+from src.plugin_api.registry.registries import registries
+from src.plugin_api.registry.registry import Registry
+from src.plugin_api.content.move import Move, MoveText
 
 class QuickAttack(Move):
     type = "normal"
@@ -109,7 +15,7 @@ class QuickAttack(Move):
 
     def __init__(self, poke):
         self.size = poke.size + 25
-        super().__init__(poke)
+        self.spawn(poke)
         self.ttl = 15
         self.xVel = poke.xVel * -4
         self.yVel = poke.yVel * -4
@@ -140,7 +46,7 @@ class BraveBird(Move):
     image = "bravebird"
     def __init__(self, poke):
         self.size = poke.size + 80
-        super().__init__(poke)
+        self.spawn(poke)
         self.x += poke.xVel * -4
         self.y += poke.yVel * -4
         self.rotate = math.atan2(poke.xVel, poke.yVel) * 180/3.14 + 180
@@ -175,7 +81,7 @@ class IronHead(Move):
     image = "ironhead"
     def __init__(self, poke):
         self.size = poke.size + 45
-        super().__init__(poke)
+        self.spawn(poke)
         self.rotate = math.atan2(poke.xVel, poke.yVel) * 180/3.14
         self.ttl = 2
         self.xVel = poke.xVel
@@ -207,7 +113,7 @@ class ZenHeadbutt(Move):
     image = "zenheadbutt"
     def __init__(self, poke):
         self.size = poke.size + 45
-        super().__init__(poke)
+        self.spawn(poke)
         self.rotate = math.atan2(poke.xVel, poke.yVel) * 180/3.14
         self.ttl = 4
         self.xVel = poke.xVel * 2
@@ -238,7 +144,7 @@ class Waterfall(Move):
     image = "waterfall"
     def __init__(self, poke):
         self.size = poke.size + 45
-        super().__init__(poke)
+        self.spawn(poke)
         self.rotate = math.atan2(poke.xVel, poke.yVel) * 180/3.14
         self.ttl = 4
         self.xVel = poke.xVel * 2
@@ -270,7 +176,7 @@ class CloseCombat(Move):
     image = "fist"
     def __init__(self, poke):
         self.size = 15
-        super().__init__(poke)
+        self.spawn(poke)
         self.x = poke.x + random.randint(-80, 80) + poke.xVel * 70
         self.y = poke.y + random.randint(-80, 80) + poke.yVel * 70
         self.ttl = 45
@@ -305,9 +211,8 @@ class DarkPulse(Move):
     usingTime = 60
 
     image = "dark"
-    def __init__(self, poke):
+    def __init__(self):
         self.size = 25
-        super().__init__(poke)
         self.ttl = 45
         self.linearGrowth = 2.5
 
@@ -318,7 +223,7 @@ class DarkPulse(Move):
             poke.previousSpeed = poke.speed
             poke.speed *= 0.05
         if poke.usingMoveTimer % 20 == 0:
-            DarkPulse(poke)
+            DarkPulse.spawn()
 
         elif poke.usingMoveTimer == 1:
             poke.speed = poke.previousSpeed
@@ -338,7 +243,7 @@ class Sandstorm(Move):
     image = "sandstorm"
     def __init__(self, poke):
         self.size = 25
-        super().__init__(poke)
+        self.spawn(poke)
         self.ttl = 200
 
     @staticmethod
@@ -365,7 +270,7 @@ class Earthquake(Move):
     image = "earthquake"
     def __init__(self, poke):
         self.size = 25
-        super().__init__(poke)
+        self.spawn(poke)
         self.ttl = 60
         self.linearGrowth = 2.5
 
@@ -399,7 +304,7 @@ class DazzlingGleam(Move):
     image = "dazzling"
     def __init__(self, poke):
         self.size = 30
-        super().__init__(poke)
+        self.spawn(poke)
         self.ttl = 60
         self.rotate = 0
         self.rotSpeed = 4
@@ -431,7 +336,7 @@ class IronTail(Move):
 
     def __init__(self, poke):
         self.size = poke.size + 110
-        super().__init__(poke)
+        self.spawn(poke)
         self.ttl = 2
         self.rotate = poke.ironTailRotation
 
@@ -457,7 +362,7 @@ class UTurn(Move):
     usingTime = 120
     def __init__(self, poke):
         self.size = poke.size + 25
-        super().__init__(poke)
+        self.spawn(poke)
         self.ttl = 20
         self.xVel = -2 * poke.xVel
         self.yVel = -2 * poke.yVel
@@ -490,7 +395,7 @@ class Bolt(Move):
 
     def __init__(self, poke):
         self.size = 40
-        super().__init__(poke)
+        self.spawn(poke)
         self.ttl = 90 - (60 - poke.usingMoveTimer)
 
         if poke.usingMoveTimer == 60 or poke.prevBeam is None:
@@ -526,7 +431,7 @@ class DragonPulse(Move):
 
     def __init__(self, poke):
         self.size = 40 + (60 - poke.usingMoveTimer)
-        super().__init__(poke)
+        self.spawn(poke)
         self.ttl = 90 - (60 - poke.usingMoveTimer)
         if poke.usingMoveTimer == 60 or poke.prevBeam is None:
             poke.beamXVel = poke.xVel
@@ -565,7 +470,7 @@ class HyperBeam(Move):
 
     def __init__(self, poke):
         self.size = 40 + ((60 - poke.usingMoveTimer) * 2)
-        super().__init__(poke)
+        self.spawn(poke)
         self.ttl = 90 - (60 - poke.usingMoveTimer)
         if poke.usingMoveTimer == 60 or poke.prevBeam is None:
             poke.beamXVel = poke.xVel
@@ -608,7 +513,7 @@ class IceBeam(Move):
 
     def __init__(self, poke):
         self.size = 40
-        super().__init__(poke)
+        self.spawn(poke)
         self.ttl = 90 - (60 - poke.usingMoveTimer)
 
         if poke.usingMoveTimer == 60 or poke.prevBeam is None:
@@ -649,7 +554,7 @@ class ShadowBall(Move):
 
     def __init__(self, poke):
         self.size = 40
-        super().__init__(poke)
+        self.spawn(poke)
         self.ttl = 300
         self.xVel = poke.xVel * 2 / poke.speed
         self.yVel = poke.yVel * 2 / poke.speed
@@ -678,7 +583,7 @@ class StoneEdge(Move):
         self.size = 40
         self.xVel = (poke.xVel + round(random.uniform(0 - self.spread, self.spread), 3)) * 2 / poke.speed
         self.yVel = (poke.yVel + round(random.uniform(0 - self.spread, self.spread), 3)) * 2 / poke.speed
-        super().__init__(poke)
+        self.spawn(poke)
         self.ttl = 300
         self.rotate = math.atan2(self.xVel, self.yVel) * 180/3.14 + 180
 
@@ -707,7 +612,7 @@ class PoisonSting(Move):
         self.size = 30
         self.xVel = (poke.xVel + round(random.uniform(0 - self.spread, self.spread), 3)) * 8 / poke.speed
         self.yVel = (poke.yVel + round(random.uniform(0 - self.spread, self.spread), 3)) * 8 / poke.speed
-        super().__init__(poke)
+        self.spawn(poke)
         self.ttl = 14
         self.rotate = math.atan2(self.xVel, self.yVel) * 180/3.14 + 180
 
@@ -739,7 +644,7 @@ class Flame(Move):
 
     def __init__(self, poke):
         self.size = 30
-        super().__init__(poke)
+        self.spawn(poke)
         self.xVel = (poke.xVel + round(random.uniform(0 - self.spread, self.spread), 3)) * 8 / poke.speed
         self.yVel = (poke.yVel + round(random.uniform(0 - self.spread, self.spread), 3)) * 8 / poke.speed
         self.ttl = 16
@@ -781,7 +686,7 @@ class Bubble(Move):
 
     def __init__(self, poke):
         self.size = 30
-        super().__init__(poke)
+        self.spawn(poke)
         self.xVel = (poke.xVel + round(random.uniform(0 - self.spread, self.spread), 3)) * 8 / poke.speed
         self.yVel = (poke.yVel + round(random.uniform(0 - self.spread, self.spread), 3)) * 8 / poke.speed
         self.ttl = 120
@@ -810,7 +715,7 @@ class RazorLeaf(Move):
 
     def __init__(self, poke):
         self.size = 30
-        super().__init__(poke)
+        self.spawn(poke)
         self.xVel = (poke.xVel + round(random.uniform(0 - self.spread, self.spread), 3)) * 20 / poke.speed
         self.yVel = (poke.yVel + round(random.uniform(0 - self.spread, self.spread), 3)) * 20 / poke.speed
         self.ttl = 120
@@ -839,7 +744,7 @@ class Bonemerang(Move):
 
     def __init__(self, poke):
         self.size = 60
-        super().__init__(poke)
+        self.spawn(poke)
         self.ttl = 240
         self.xVel = poke.xVel * 10
         self.yVel = poke.yVel * 10
@@ -882,3 +787,28 @@ MOVES: dict[str, type[Move]] = {
         "Sandstorm": Sandstorm,
         "Hyper Beam": HyperBeam
     }
+
+def registerAll(moves_registry: Registry):
+    moves_registry.register(Identifier("vanilla","Quick Attack"),QuickAttack)
+    moves_registry.register(Identifier("vanilla","Brave Bird"),BraveBird)
+    moves_registry.register(Identifier("vanilla","Thunderbolt"),Bolt)
+    moves_registry.register(Identifier("vanilla","Hyper Beam"),HyperBeam)
+    moves_registry.register(Identifier("vanilla","Sandstorm"),Sandstorm)
+    moves_registry.register(Identifier("vanilla","Waterfall"),Waterfall)
+    moves_registry.register(Identifier("vanilla","Zen Headbutt"),ZenHeadbutt)
+    moves_registry.register(Identifier("vanilla","Bonemerang"),Bonemerang)
+    moves_registry.register(Identifier("vanilla","Earthquake"),Earthquake)
+    moves_registry.register(Identifier("vanilla","Iron Head"),IronHead)
+    moves_registry.register(Identifier("vanilla","Iron Tail"),IronTail)
+    moves_registry.register(Identifier("vanilla","Dark Pulse"),DarkPulse)
+    moves_registry.register(Identifier("vanilla","Poison Sting"),PoisonSting)
+    moves_registry.register(Identifier("vanilla","Close Combat"),CloseCombat)
+    moves_registry.register(Identifier("vanilla","Dazzling Gleam"),DazzlingGleam)
+    moves_registry.register(Identifier("vanilla","Stone Edge"),StoneEdge)
+    moves_registry.register(Identifier("vanilla","Dragon Pulse"),DragonPulse)
+    moves_registry.register(Identifier("vanilla","Ice Beam"),IceBeam)
+    moves_registry.register(Identifier("vanilla","U-Turn"),UTurn)
+    moves_registry.register(Identifier("vanilla","Bubblebeam"),Bubble)
+    moves_registry.register(Identifier("vanilla","Razor Leaf"),RazorLeaf)
+    moves_registry.register(Identifier("vanilla","Flamethrower"),Flame)
+    moves_registry.register(Identifier("vanilla","Shadow Ball"),ShadowBall)

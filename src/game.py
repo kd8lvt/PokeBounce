@@ -2,6 +2,7 @@ import pygame, sys, random
 import pygame.freetype
 from pygame.locals import *
 import requests
+import src.plugin_loader as plugin_loader
 from src.debug import overrideBattlers, battlerOverride
 from src.constants import WINDOW_HEIGHT, WINDOW_WIDTH, BACKGROUND, API, startTimer
 from src.globals import g
@@ -29,6 +30,7 @@ class Game:
         self.id = 0
         self.timer = 0
         self.walls = [physics.Wall("right"), physics.Wall("left"), physics.Wall("top"), physics.Wall("bottom")]
+        plugin_loader.ready()
 
     def newGame(self):
         self.charList = []
