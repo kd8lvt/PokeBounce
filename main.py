@@ -1,11 +1,11 @@
 import pygame, sys, random, math
 from pygame.locals import *
-import requests
+#import requests
 import datetime
 
 from poke import Poke, chooseChars
 
-
+timescale = 1
 
 url = "http://127.0.0.1:5000"
 
@@ -19,7 +19,7 @@ showCollisionBoxes = False
 BACKGROUND = (240, 240, 240)
  
 # Game Setup
-FPS = 60
+FPS = 60 * timescale
 fpsClock = pygame.time.Clock()
 WINDOW_WIDTH = 1450
 WINDOW_HEIGHT = 800
@@ -247,6 +247,9 @@ allChars = [
   metagross1
 ]
 
+import datasci
+datasci.init(allChars)
+
 startTimer = 300
 
 charList = allChars
@@ -311,20 +314,20 @@ while looping:
 
     if not charsChosen:
       charList = chooseChars(allChars, random.randint(3,10))
-      # charList = [pikachu1, staraptor1]
+      #charList = [pikachu1, staraptor1]
       charsChosen = True
 
       gameId = random.randint(10000, 99999)
 
       fighterList = []
       for char in charList:
-      	fighterList.append(char.name)
+        fighterList.append(char.name)
 
-      requests.post(url + "/setfighters", json = {"fighters" : fighterList})
-      requests.post(url + "/setgameid", json = {"id" : gameId})
+      #requests.post(url + "/setfighters", json = {"fighters" : fighterList})
+      #requests.post(url + "/setgameid", json = {"id" : gameId})
 
       gambling = True
-      requests.post(url + "/setgambling", json = {"openGambling" : gambling})
+      #requests.post(url + "/setgambling", json = {"openGambling" : gambling})
 
     for char in charList:
       charrect = pygame.Rect((char.x, char.y, char.size, char.size))
@@ -366,7 +369,7 @@ while looping:
     if gambling:
 
         gambling = False
-        requests.post(url + "/setgambling", json = {"openGambling" : gambling})
+        #requests.post(url + "/setgambling", json = {"openGambling" : gambling})
 
     if wallModifier < wallMaxSize:
         wallModifier += wallGrowth
@@ -509,11 +512,13 @@ while looping:
     if gameOverCountdown == 0:
       if len(alivelist) == 0:
         result = "draw"
-        requests.post(url + "/setwinner", json = {"winner" : "Nobody"})
+        #requests.post(url + "/setwinner", json = {"winner" : "Nobody"})
+        datasci.write(allChars,charList,"Nobody")
       if len(alivelist) == 1:
         result = "win"
         winner = alivelist[0]
-        requests.post(url + "/setwinner", json = {"winner" : winner})
+        #requests.post(url + "/setwinner", json = {"winner" : winner})
+        datasci.write(allChars,charList,winner)
       endScreenCountdown = 240
       
 
