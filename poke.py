@@ -187,7 +187,7 @@ class Waterfall:
 class CloseCombat:
 	type = "fighting"
 	colour = (185, 224, 239)
-	damage = 35
+	damage = 40
 	rotate = 0
 	graphic = "image"
 
@@ -296,7 +296,7 @@ class Earthquake:
 
 	def move(self, speed = 1):
 		self.ttl -= 1
-		self.size += 5
+		self.size += 7
 		self.x -= 1.5
 		self.y -= 1.5
 		self.damage -= 1
@@ -484,11 +484,11 @@ class IceBeam:
 
 class ShadowBall:
 	type = "ghost"
-	ttl = 300
+	ttl = 180
 	spread = 0.0
 	growth = 1.01
-	speedDecay = 1.005
-	damage = 55
+	speedDecay = 1.000
+	damage = 45
 	colour = (255, 20, 200, 30)
 	graphic = "image"
 	image = "shadowball"
@@ -522,10 +522,10 @@ class ShadowBall:
 class StoneEdge:
 	type = "rock"
 	ttl = 300
-	spread = 0.2
+	spread = 0.25
 	growth = 1.00
 	speedDecay = 1.000
-	damage = 40
+	damage = 45
 	colour = (255, 20, 200, 30)
 	graphic = "image"
 	image = "stone"
@@ -560,7 +560,7 @@ class PoisonSting:
 	spread = 0.1
 	growth = 1.00
 	speedDecay = 1.000
-	damage = 30
+	damage = 40
 	colour = (255, 20, 200, 30)
 	graphic = "image"
 	image = "poison"
@@ -595,7 +595,7 @@ class Flame:
 	spread = 0.1
 	growth = 1.02
 	speedDecay = 0.98
-	damage = 20
+	damage = 35
 	colour = (255, 102, 0, 30)
 	graphic = "image"
 
@@ -641,7 +641,7 @@ class Bubble:
 	spread = 0.15
 	growth = 1.01
 	speedDecay = 0.97
-	damage = 20
+	damage = 30
 	colour = (20, 50, 250, 30)
 	graphic = "image"
 
@@ -708,7 +708,7 @@ class RazorLeaf:
 
 class Bonemerang:
 	type = "ground"
-	ttl = 240
+	ttl = 400
 	spread = 0
 	growth = 1.000
 	speedDecay = 1
@@ -1050,7 +1050,7 @@ class Poke:
 			self.moveText = MoveText(self.x, self.y, self.usingMove)
 		self.usingMoveTimer -= 1
 		if self.usingMoveTimer == 29:
-			ball = ShadowBall(self.x, self.y, self.xVel, self.yVel, self.size, 12)
+			ball = ShadowBall(self.x, self.y, self.xVel, self.yVel, self.size, self.speed+4)
 			self.activeHitboxList.append(ball)
 		if self.usingMoveTimer == 0:
 			self.usingMove = ""
@@ -1059,7 +1059,7 @@ class Poke:
 		if self.usingMoveTimer == 30:
 			self.moveText = MoveText(self.x, self.y, self.usingMove)
 		self.usingMoveTimer -= 1
-		if self.usingMoveTimer == 29:
+		if self.usingMoveTimer == 29 or self.usingMoveTimer == 27:
 			ball = StoneEdge(self.x, self.y, self.xVel, self.yVel, self.size, 14)
 			self.activeHitboxList.append(ball)
 			ball = StoneEdge(self.x, self.y, self.xVel, self.yVel, self.size, 14)
@@ -1363,7 +1363,7 @@ class Poke:
 		if self.usingMoveTimer == 90:
 			self.moveText = MoveText(self.x, self.y, self.usingMove)
 			self.ironTailRotation = 0
-			self.iFrames = 60
+			self.iFrames = 30
 		ttl = 2
 		self.activeHitboxList.append(IronTail(self.x, self.y, self.size, self.size + 110, ttl, self.ironTailRotation))
 		self.ironTailRotation += 20
