@@ -6,7 +6,6 @@ import datetime
 from poke import Poke, chooseChars
 
 
-
 url = "http://127.0.0.1:5000"
 
 pygame.init()
@@ -191,15 +190,37 @@ moveDict = {
 
 maxHealth = 300
 
-pikachu1 = Poke(75, 450, pika_img, 80, ["Thunderbolt", "Quick Attack", "Iron Tail"], "Pikachu", maxHealth)
+positions = [
+	(330,55),
+	(330, 155),
+	(330, 255),
+	(330, 355),
+	(330, 455),
+	(330, 555),
+	(330, 655),
+	(430, 55),
+	(1030,55),
+	(1030, 155),
+	(1030, 255),
+	(1030, 355),
+	(1030, 455),
+	(1030, 555),
+	(1030, 655),
+	(930, 655),
+]
+
+randomXOffset = 270
+
+pikachu1 = Poke(1300, 655, pika_img, 80, ["Thunderbolt", "Quick Attack", "Iron Tail"], "Pikachu", maxHealth)
 # pikachu1 = Poke(600, 400, pika_img, 80, ["Thunderbolt"], "Pikachu", maxHealth)
 
-staraptor1 = Poke(600, 450, staraptor_img, 80, ["Quick Attack", "Brave Bird", "Close Combat"], "Staraptor", maxHealth)
+staraptor1 = Poke(1200, 655, staraptor_img, 80, ["Quick Attack", "Brave Bird", "Close Combat"], "Staraptor", maxHealth)
 
 infernape1 = Poke(600, 75, infernape_img, 80, ["Flamethrower", "Stone Edge", "Close Combat"], "Infernape", maxHealth)
 # infernape1 = Poke(800, 400, infernape_img, 80, ["Close Combat"], "Infernape", maxHealth)
 
 umbreon1 = Poke(75, 75, umbreon_img, 80, ["Quick Attack", "Dark Pulse", "Shadow Ball"], "Umbreon", maxHealth)
+# umbreon1 = Poke(75, 75, umbreon_img, 80, ["Shadow Ball"], "Umbreon", maxHealth)
 
 mamoswine1 = Poke(700, 500, mamoswine_img, 80, ["Ice Beam", "Stone Edge", "Iron Head"], "Mamoswine", maxHealth)
 
@@ -219,7 +240,7 @@ marowak1 = Poke(700, 650, marowak_img, 80, ["Bonemerang", "Flamethrower", "Shado
 
 clodsire1 = Poke(300, 650, clodsire_img, 80, ["Earthquake", "Poison Sting", "Waterfall"], "Quagsire", maxHealth)
 
-porygonz1 = Poke(1000, 650, porygonz_img, 80, ["Hyper Beam", "Thunderbolt", "Ice Beam"], "Porygon-Z", maxHealth)
+porygonz1 = Poke(1000, 650, porygonz_img, 80, ["Hyper Beam", "Thunderbolt", "Ice Beam"], "Porygonz", maxHealth)
 
 tyranitar1 = Poke(850, 500, tyranitar_img, 80, ["Sandstorm", "Dark Pulse", "Stone Edge"], "Tyranitar", maxHealth)
 
@@ -247,7 +268,8 @@ allChars = [
   metagross1
 ]
 
-startTimer = 300
+startTimer = 2400
+# startTimer = 24
 
 charList = allChars
 
@@ -311,7 +333,16 @@ while looping:
 
     if not charsChosen:
       charList = chooseChars(allChars, random.randint(3,10))
-      # charList = [pikachu1, staraptor1]
+      # charList = allChars + []
+      random.shuffle(positions)
+      posListShuffle = positions + []
+      for char in charList:
+      	randX = posListShuffle[-1][0] + random.randint(randomXOffset * -1, randomXOffset)
+      	randY = posListShuffle[-1][1]
+
+      	posListShuffle.pop()
+      	char.x = randX
+      	char.y = randY
       charsChosen = True
 
       gameId = random.randint(10000, 99999)
