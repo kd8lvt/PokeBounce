@@ -5,7 +5,7 @@ import datetime
 
 from poke import Poke, chooseChars
 
-timescale = 1
+timescale = 10
 
 url = "http://127.0.0.1:5000"
 
@@ -250,7 +250,7 @@ allChars = [
 import datasci
 datasci.init(allChars)
 
-startTimer = 300
+startTimer = 10
 
 charList = allChars
 
